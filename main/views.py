@@ -5,6 +5,7 @@ from .models import Question, Set
 import io, os
 from django.views.decorators.csrf import csrf_protect
 from questionset.settings import MEDIA_ROOT
+from django.contrib import messages
 
 @csrf_protect
 def upload_question_set(request):
@@ -33,11 +34,9 @@ def upload_question_set(request):
                     correct_answer=row[5]
                 )
             
-            return redirect('upload_success')
+            messages.success(request, "Upload Sucessful." )
+
     else:
         form = QuestionSetUploadForm()
-
     return render(request, 'upload.html', {'form': form})
 
-def upload_success(request):
-    return render(request, 'upload_success.html')
