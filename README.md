@@ -25,7 +25,7 @@ sudo docker-compose up --build
 ## Usage
 
 1. **Access the Upload Form:** 
-   Navigate to `http://localhost/questionset/upload` in your web browser.
+   Navigate to `http://localhost:8000/questionset/upload` in your web browser.
 
 2. **Uploading a File:** 
    Use the form to upload your CSV or XLSX file.
