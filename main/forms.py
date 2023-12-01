@@ -1,32 +1,40 @@
 from django import forms
-import csv, io, openpyxl
+import pandas as pd
+from .models import Question, Set
+
 
 class QuestionSetUploadForm(forms.Form):
     file = forms.FileField()
 
     def clean_file(self):
-        uploaded_file = self.cleaned_data['file']
-        file_name = uploaded_file.name
-        if not (file_name.endswith('.csv') or file_name.endswith('.xlsx')):
-            raise forms.ValidationError("The file must be a CSV or Excel file.")
+        file = self.cleaned_data['file']
 
-        # Check if the file is in the correct format
-        try:
-            if file_name.endswith('.csv'):
-                decoded_file = uploaded_file.read().decode('utf-8')
-                io_string = io.StringIO(decoded_file)
-                reader = csv.reader(io_string)
-                for row in reader:
-                    if len(row) != 6:
-                        raise forms.ValidationError("CSV file format is incorrect.")
-            else:  # Excel file
-                wb = openpyxl.load_workbook(filename=uploaded_file)
-                sheet = wb.active
-                for row in sheet.iter_rows():
-                    if len(row) != 6:
-                        raise forms.ValidationError("Excel file format is incorrect.")
-        except Exception as e:
-            raise forms.ValidationError(f"Error reading file: {str(e)}")
+        # Validate file type
+        if not (file.name.endswith('.csv') or file.name.endswith('.xlsx')):
+            raise forms.ValidationError('The file must be a CSV or Excel file.')
 
-        # Return the cleaned data.
-        return uploaded_file
+        # Read file and validate columns
+        if file.name.endswith('.csv'):
+            df = pd.read_csv(file)
+        else:  # Excel file
+            df = pd.read_excel(file)
+
+        if df.shape[1] != 6:
+            raise forms.ValidationError('The file must have exactly 6 columns.')
+
+        # Check for required column names
+        # required_columns = ['question', 'answer_a', 'answer_b', 'answer_c', 'answer_d', 'correct_answer']
+        # if not all(column in df.columns for column in required_columns):
+        #     raise forms.ValidationError('The file must contain the required columns: question, option a, option b, option c, option d, correct answer.')
+
+        return file
+    
+
+    def save(self, commit=True):
+        
+        file = self.cleaned_data['file']
+
+        instance = Set(title = file.name, file=file)
+        if commit:
+            instance.save()
+        return instance
