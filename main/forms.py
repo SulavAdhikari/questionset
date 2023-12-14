@@ -22,10 +22,6 @@ class QuestionSetUploadForm(forms.Form):
         if df.shape[1] != 6:
             raise forms.ValidationError('The file must have exactly 6 columns.')
 
-        # Check for required column names
-        # required_columns = ['question', 'answer_a', 'answer_b', 'answer_c', 'answer_d', 'correct_answer']
-        # if not all(column in df.columns for column in required_columns):
-        #     raise forms.ValidationError('The file must contain the required columns: question, option a, option b, option c, option d, correct answer.')
 
         return file
     
