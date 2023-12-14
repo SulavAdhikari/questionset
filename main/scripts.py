@@ -1,4 +1,5 @@
-import string
+import string, io
+
 class ExcelHelper:
     # Considering that the file has been validated
     def __init__(self, sheet):
@@ -23,7 +24,8 @@ class ExcelHelper:
     def locate_image(self, row, col):
         for image_dict in self.images:
             if image_dict['row'] == row and image_dict['col'] == col:
-                return image_dict['data']
+                image = io.BytesIO(image_dict['data'])
+                return image
         return False
     
     # this method returns all the options with images in a row
