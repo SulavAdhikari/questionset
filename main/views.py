@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from .forms import QuestionSetUploadForm 
 from .models import Question, Set  
 import os, openpyxl
-
+from PIL import Image
 from django.views.decorators.csrf import csrf_protect
 from questionset.settings import MEDIA_ROOT
 from django.contrib import messages
@@ -18,18 +18,17 @@ def upload_question_set(request):
             ins = form.save(commit=True)
             file = ins.file
             if file.name.endswith('.csv'):
-                # df = pd.read_csv(file)
-                string = file.read()
+                
                 df = pd.read_csv(os.path.join(MEDIA_ROOT ,file.name), index_col=None)
             else:
                 df = pd.read_excel(os.path.join(MEDIA_ROOT ,file.name))
                 from .scripts import ExcelHelper
-                from PIL import Image
-                work_book = openpyxl.load_workbook()
-                sheet = work_book.active()
+                
+                work_book = openpyxl.load_workbook(os.path.join(MEDIA_ROOT ,file.name))
+                sheet = work_book.active
                 excel_client = ExcelHelper(sheet=sheet)
 
-                if excel_client.has_image():
+                if excel_client.has_image:
                     rows = excel_client.get_all_rows()
 
                     for index, row in df.iterrows():
@@ -50,6 +49,7 @@ def upload_question_set(request):
                             if "A" in options:
                                 image = excel_client.locate_image(index, 'A')
                                 q.answer_a_file = image
+                                
                             else:
                                 q.answer_a= row[1]
 
@@ -70,6 +70,10 @@ def upload_question_set(request):
                                 q.answer_d_file = image
                             else:
                                 q.answer_d = row[4]
+                            q.correct_answer=row[5]
+                            q.save()
+                    messages.success(request, "Upload Sucess with images")
+                    return render(request, 'upload.html', {'form':form})
             # Iterate through the DataFrame and save each row to the database
             for index, row in df.iterrows():
 

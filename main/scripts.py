@@ -11,7 +11,7 @@ class ExcelHelper:
             # Considering We have a head the row is deducted for easier use
             row = image.anchor._from.row-1
             # we are storing col as an indicator of which answer option it is. 
-            col = string.ascii_uppercase[image.anchor._from.col+1]
+            col = string.ascii_uppercase[image.anchor._from.col-1]
             
             image_dict = {
                 "row": int(row),
@@ -24,7 +24,7 @@ class ExcelHelper:
     def locate_image(self, row, col):
         for image_dict in self.images:
             if image_dict['row'] == row and image_dict['col'] == col:
-                image = io.BytesIO(image_dict['data'])
+                image = io.BytesIO(image_dict['image']())
                 return image
         return False
     
@@ -33,7 +33,7 @@ class ExcelHelper:
         cols = []
         for image_dict in self.images:
             if image_dict['row'] == row:
-                cols.append(image_dict['cols'])
+                cols.append(image_dict['col'])
         cols.sort()
         return cols
     
